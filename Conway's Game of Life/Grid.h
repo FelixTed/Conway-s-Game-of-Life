@@ -18,6 +18,9 @@ public:
 
 	//Prints the whole grid to the console
 	void printGrid();
+
+	//Plays the game for the specified ammount of time
+	void startGame(int turns);
 private:
 	std::vector<std::vector<int>> grid;
 };
