@@ -6,25 +6,25 @@
 
 int countLiveNeighbors(int row, int column, std::vector<std::vector<int>>& grid) {
     int count = 0;
-    if (row > 0) {
-        if (grid[row - 1][column] > 0)
-            ++count;
-        if (column > 0 && grid[row - 1][column - 1] > 0)
-            ++count;
-        if (column < grid[0].size() - 1 && grid[row - 1][column + 1] > 0)
-            ++count;
-    }
-    if (column > 0 && grid[row][column - 1] > 0)
-        ++count;
-    if (column < grid[0].size() - 1 && grid[row][column + 1] > 0)
-        ++count;
-    if (row < grid.size() - 1) {
-        if (grid[row + 1][column] > 0)
-            ++count;
-        if (column > 0 && grid[row + 1][column - 1] > 0)
-            ++count;
-        if (column < grid[0].size() - 1 && grid[row + 1][column + 1] > 0)
-            ++count;
+    int rows = grid.size();
+    int cols = grid[0].size();
+
+    // Iterate over the 3x3 neighborhood centered around (row, column)
+    for (int i = -1; i <= 1; ++i) {
+        for (int j = -1; j <= 1; ++j) {
+            // Skip the center cell itself
+            if (i == 0 && j == 0) continue;
+
+            int newRow = row + i;
+            int newCol = column + j;
+
+            // Check if the neighbor is within the grid boundaries
+            if (newRow >= 0 && newRow < rows && newCol >= 0 && newCol < cols) {
+                if (grid[newRow][newCol] > 0) {
+                    ++count;
+                }
+            }
+        }
     }
     return count;
 }

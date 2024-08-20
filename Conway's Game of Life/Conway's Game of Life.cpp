@@ -18,6 +18,7 @@ int main()
 	grid.setCell(2, 3, 1);
 	grid.setCell(2, 4, 1);
 
+
 	grid.startGame(10);
 }
 
