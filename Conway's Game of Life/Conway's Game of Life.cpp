@@ -10,16 +10,23 @@
 #include <iostream>
 #include <vector>
 #include <SFML/Graphics.hpp>
+#include <filesystem>
 
 #include "Grid.h"
 int main()
 {
 
 
-	sf::RenderWindow window(sf::VideoMode(500, 500), "Conway's Game of Life", sf::Style::Close);
+	sf::RenderWindow window(sf::VideoMode(550, 500), "Conway's Game of Life", sf::Style::Close);
 
 	sf::Event evnt;
  
+
+
+	sf::RectangleShape playButton(sf::Vector2f(50.0f, 50.f));
+	playButton.setFillColor(sf::Color::Green);
+	playButton.setPosition(500.f, 450.f);
+
 	//Create the vector of cubes and set the cubes inside
 	std::vector<std::vector<sf::RectangleShape>> squares(10, std::vector<sf::RectangleShape>(10));
 	for (int i = 0; i < 10; ++i) {
@@ -30,6 +37,7 @@ int main()
 			squares[i][j].setPosition(i * 50.f, j * 50.f);
 		}
 	}
+	
 	
 
 	while (window.isOpen()) {
@@ -58,6 +66,15 @@ int main()
 							squares[gridX][gridY].setFillColor(sf::Color::White);
 						}
 					}
+					else if (gridX == 10 && gridY == 9) {
+						if (playButton.getFillColor() == sf::Color::Green) {
+							playButton.setFillColor(sf::Color::Red);
+						}
+						else {
+							playButton.setFillColor(sf::Color::Green);
+						}
+					}
+
 				}
 				break;
 			case sf::Event::Closed:
@@ -69,6 +86,8 @@ int main()
 			
 		}
 
+
+		window.draw(playButton);
 		for (int i = 0; i < squares.size(); ++i) {
 			for (int j = 0; j < squares[i].size(); ++j) {
 				window.draw(squares[i][j]);
