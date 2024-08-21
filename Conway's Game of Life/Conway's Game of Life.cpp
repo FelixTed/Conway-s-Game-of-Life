@@ -8,10 +8,76 @@
 //Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
 #include <iostream>
+#include <vector>
+#include <SFML/Graphics.hpp>
 
 #include "Grid.h"
 int main()
 {
+
+
+	sf::RenderWindow window(sf::VideoMode(500, 500), "Conway's Game of Life", sf::Style::Close);
+
+	sf::Event evnt;
+ 
+	//Create the vector of cubes and set the cubes inside
+	std::vector<std::vector<sf::RectangleShape>> squares(10, std::vector<sf::RectangleShape>(10));
+	for (int i = 0; i < 10; ++i) {
+		for (int j = 0; j < 10; ++j) {
+			squares[i][j] = sf::RectangleShape(sf::Vector2f(49.0f, 49.0f));
+			squares[i][j].setFillColor(sf::Color::White);
+			squares[i][j].setOutlineColor(sf::Color::Black);
+			squares[i][j].setPosition(i * 50.f, j * 50.f);
+		}
+	}
+	
+
+	while (window.isOpen()) {
+
+		
+
+		while (window.pollEvent(evnt)) {
+
+			switch (evnt.type) {
+			case sf::Event::MouseButtonPressed:
+				if (evnt.mouseButton.button == sf::Mouse::Left) {
+					// Get the position of the mouse click
+					sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+
+					// Calculate the grid position based on mouse position
+					int gridX = mousePos.x / 50;
+					int gridY = mousePos.y / 50;
+
+					// Ensure the click is within grid bounds
+					if (gridX >= 0 && gridX < 10 && gridY >= 0 && gridY < 10) {
+						// Toggle the color of the clicked square
+						if (squares[gridX][gridY].getFillColor() == sf::Color::White) {
+							squares[gridX][gridY].setFillColor(sf::Color::Black);
+						}
+						else {
+							squares[gridX][gridY].setFillColor(sf::Color::White);
+						}
+					}
+				}
+				break;
+			case sf::Event::Closed:
+				window.close();
+				break;
+			
+			}
+			
+			
+		}
+
+		for (int i = 0; i < squares.size(); ++i) {
+			for (int j = 0; j < squares[i].size(); ++j) {
+				window.draw(squares[i][j]);
+			}
+		}
+		window.display();
+	}
+
+
 	Grid grid;
 
 	grid.setCell(2, 2, 1);
