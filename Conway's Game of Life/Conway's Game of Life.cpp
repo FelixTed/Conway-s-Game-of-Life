@@ -11,100 +11,93 @@
 #include <vector>
 #include <SFML/Graphics.hpp>
 #include <filesystem>
+#include <thread>
 
 #include "Grid.h"
-int main()
-{
+int main() {
+    sf::RenderWindow window(sf::VideoMode(550, 500), "Conway's Game of Life", sf::Style::Close);
+    sf::Event evnt;
 
+    sf::RectangleShape playButton(sf::Vector2f(50.0f, 50.f));
+    playButton.setFillColor(sf::Color::Green);
+    playButton.setPosition(500.f, 450.f);
 
-	sf::RenderWindow window(sf::VideoMode(550, 500), "Conway's Game of Life", sf::Style::Close);
+    // Create the vector of cubes and set the cubes inside
+    std::vector<std::vector<sf::RectangleShape>> squares(10, std::vector<sf::RectangleShape>(10));
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            squares[i][j] = sf::RectangleShape(sf::Vector2f(49.0f, 49.0f));
+            squares[i][j].setFillColor(sf::Color::White);
+            squares[i][j].setOutlineColor(sf::Color::Black);
+            squares[i][j].setPosition(i * 50.f, j * 50.f);
+        }
+    }
 
-	sf::Event evnt;
- 
+    Grid grid(squares);
 
+    // Flag to check if the game is running
+    std::thread gameThread;
 
-	sf::RectangleShape playButton(sf::Vector2f(50.0f, 50.f));
-	playButton.setFillColor(sf::Color::Green);
-	playButton.setPosition(500.f, 450.f);
+    while (window.isOpen()) {
+        while (window.pollEvent(evnt)) {
+            switch (evnt.type) {
+            case sf::Event::MouseButtonPressed:
+                if (evnt.mouseButton.button == sf::Mouse::Left) {
+                    // Get the position of the mouse click
+                    sf::Vector2i mousePos = sf::Mouse::getPosition(window);
 
-	//Create the vector of cubes and set the cubes inside
-	std::vector<std::vector<sf::RectangleShape>> squares(10, std::vector<sf::RectangleShape>(10));
-	for (int i = 0; i < 10; ++i) {
-		for (int j = 0; j < 10; ++j) {
-			squares[i][j] = sf::RectangleShape(sf::Vector2f(49.0f, 49.0f));
-			squares[i][j].setFillColor(sf::Color::White);
-			squares[i][j].setOutlineColor(sf::Color::Black);
-			squares[i][j].setPosition(i * 50.f, j * 50.f);
-		}
-	}
-	
-	
+                    // Calculate the grid position based on mouse position
+                    int gridX = mousePos.x / 50;
+                    int gridY = mousePos.y / 50;
 
-	while (window.isOpen()) {
+                    // Ensure the click is within grid bounds
+                    if (gridX >= 0 && gridX < 10 && gridY >= 0 && gridY < 10) {
+                        // Toggle the color of the clicked square
+                        if (squares[gridX][gridY].getFillColor() == sf::Color::White) {
+                            squares[gridX][gridY].setFillColor(sf::Color::Black);
+                            grid.setCell(gridY, gridX, 1);
+                        }
+                        else {
+                            squares[gridX][gridY].setFillColor(sf::Color::White);
+                            grid.setCell(gridY, gridX, 0);
+                        }
+                    }
+                    else if (gridX == 10 && gridY == 9) {
+                        if (playButton.getFillColor() == sf::Color::Green) {
+                            playButton.setFillColor(sf::Color::Red);
 
-		
+                            // Start the game in a separate thread
+                            gameThread = std::thread([&grid]() { grid.startGame(10); });
+                        }
+                        else {
+                            playButton.setFillColor(sf::Color::Green);
+                            grid.setStop(true);
+                        }
+                    }
+                }
+                break;
+            case sf::Event::Closed:
+                window.close();
+                break;
+            }
+        }
 
-		while (window.pollEvent(evnt)) {
+        window.clear();
+        window.draw(playButton);
+        for (int i = 0; i < squares.size(); ++i) {
+            for (int j = 0; j < squares[i].size(); ++j) {
+                window.draw(squares[i][j]);
+            }
+        }
+        window.display();
+    }
 
-			switch (evnt.type) {
-			case sf::Event::MouseButtonPressed:
-				if (evnt.mouseButton.button == sf::Mouse::Left) {
-					// Get the position of the mouse click
-					sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+    // Wait for the game thread to finish if it's running
+    if (gameThread.joinable()) {
+        gameThread.join();
+    }
 
-					// Calculate the grid position based on mouse position
-					int gridX = mousePos.x / 50;
-					int gridY = mousePos.y / 50;
-
-					// Ensure the click is within grid bounds
-					if (gridX >= 0 && gridX < 10 && gridY >= 0 && gridY < 10) {
-						// Toggle the color of the clicked square
-						if (squares[gridX][gridY].getFillColor() == sf::Color::White) {
-							squares[gridX][gridY].setFillColor(sf::Color::Black);
-						}
-						else {
-							squares[gridX][gridY].setFillColor(sf::Color::White);
-						}
-					}
-					else if (gridX == 10 && gridY == 9) {
-						if (playButton.getFillColor() == sf::Color::Green) {
-							playButton.setFillColor(sf::Color::Red);
-						}
-						else {
-							playButton.setFillColor(sf::Color::Green);
-						}
-					}
-
-				}
-				break;
-			case sf::Event::Closed:
-				window.close();
-				break;
-			
-			}
-			
-			
-		}
-
-
-		window.draw(playButton);
-		for (int i = 0; i < squares.size(); ++i) {
-			for (int j = 0; j < squares[i].size(); ++j) {
-				window.draw(squares[i][j]);
-			}
-		}
-		window.display();
-	}
-
-
-	Grid grid;
-
-	grid.setCell(2, 2, 1);
-	grid.setCell(2, 3, 1);
-	grid.setCell(2, 4, 1);
-
-
-	grid.startGame(10);
+    return 0;
 }
 
 

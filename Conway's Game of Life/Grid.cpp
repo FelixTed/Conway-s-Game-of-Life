@@ -53,27 +53,38 @@ void Grid::printGrid() {
 
 void Grid::startGame(int turns) {
     for (int i = 1; i <= turns; ++i) {
-        system("CLS");
-        std::cout << std::endl << "Turn: " << i << std::endl;
-        printGrid();
+        if (stop)
+            exit(0);
+        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+       
 
         std::vector<std::vector<int>> tempVec(grid.size(), std::vector<int>(grid[0].size(), 0));
 
         for (int j = 0; j < grid.size(); j++) {
             for (int z = 0; z < grid.size(); z++) {
                 int neighbors = countLiveNeighbors(j, z, grid);
-                if (grid[j][z] > 0 && neighbors < 2)
+                if (grid[j][z] > 0 && neighbors < 2) {
                     tempVec[j][z] = 0;
-                else if (grid[j][z] > 0 && neighbors > 3)
+                    squares[z][j].setFillColor(sf::Color::White);
+                }
+                else if (grid[j][z] > 0 && neighbors > 3) {
                     tempVec[j][z] = 0;
-                else if (grid[j][z] > 0 && (neighbors == 2 || neighbors == 3))
+                    squares[z][j].setFillColor(sf::Color::White);
+                }
+                else if (grid[j][z] > 0 && (neighbors == 2 || neighbors == 3)) {
                     tempVec[j][z] = 1;
-                else if (grid[j][z] <= 0 && neighbors == 3)
+                   squares[z][j].setFillColor(sf::Color::Black);
+                }
+                else if (grid[j][z] <= 0 && neighbors == 3) {
                     tempVec[j][z] = 1;
+                    squares[z][j].setFillColor(sf::Color::Black);
+                }
             }
+
         }
         grid = tempVec;
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+  
     }
 }
